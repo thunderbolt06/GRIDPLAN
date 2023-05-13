@@ -67,7 +67,7 @@ class App:
         self.buttons_section()
 
     def connectivity_graph_section(self):
-        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.connectivity_graph_frame.grid(row=1, column=0)
 
         title = tk.Canvas(self.connectivity_graph_frame, width=self.screen_width/4, height=self.screen_height/2)
@@ -76,27 +76,41 @@ class App:
 
     def user_grid_section(self):
         
-        self.user_grid_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.user_grid_frame = tk.Frame(self.root, width=self.screen_width*0.7, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.user_grid_frame.grid(row=1, column=1)
-        self.user_grid_canvas = tk.Canvas(self.user_grid_frame, width=self.screen_width/3, height=self.screen_height/2)
-        self.user_grid_canvas.grid()
-        self.user_grid_canvas.create_text(50, 50, text="User Grid")
+        
+        self.create_bg_grid(5, 4, self.user_grid_frame)
+
+        # title = tk.Label(self.user_grid_frame, text="asdf")
+        # title.place(x = 100 , y = 99)
+        # self.user_grid_canvas = tk.Canvas(self.user_grid_frame, width=self.screen_width/3, height=self.screen_height/2)
+        # self.user_grid_canvas.grid()
+        # self.user_grid_canvas.create_text(50, 50, text="User Grid")
+
+    def create_bg_grid(self, row, col, frame):
+        
+        for r in range(row):
+            for c in range(col):
+                title = tk.Frame(self.user_grid_frame, highlightbackground="light grey", highlightthickness=2, width=50, height=50)
+                title.place(x = 100 + c*50 , y = 100 + 50*r)
+        pass
 
     def inventory_section(self):
-        self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
-        self.inventory_frame.grid(row=1, column=2)
-        self.inventory_canvas = tk.Canvas(self.inventory_frame, width=self.screen_width/3, height=self.screen_height/2)
-        self.inventory_canvas.grid()
-        self.inventory_canvas.create_text(50, 50, text="Boxes")
+        pass
+        # self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        # self.inventory_frame.grid(row=1, column=2)
+        # self.inventory_canvas = tk.Canvas(self.inventory_frame, width=self.screen_width/3, height=self.screen_height/2)
+        # self.inventory_canvas.grid()
+        # self.inventory_canvas.create_text(50, 50, text="Boxes")
 
-        self.boxes = {}
-        rect = self.inventory_frame(50, 110,300,280, fill= "light blue")
-        label = tk.Label(self.root, bg="red", width=10, height=5)
-        label.place(x=0, y=0)
-        self.boxes[rect] = {}
-        self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda event : self.drag_start(event, rect, self.inventory_canvas))
-        # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda x: print("hello"))
-        self.inventory_canvas.tag_bind(rect, "<B1-Motion>", lambda event : self.drag_motion(event, rect, self.inventory_canvas))
+        # self.boxes = {}
+        # rect = self.inventory_frame(50, 110,300,280, fill= "light blue")
+        # label = tk.Label(self.root, bg="red", width=10, height=5)
+        # label.place(x=0, y=0)
+        # self.boxes[rect] = {}
+        # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda event : self.drag_start(event, rect, self.inventory_canvas))
+        # # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda x: print("hello"))
+        # self.inventory_canvas.tag_bind(rect, "<B1-Motion>", lambda event : self.drag_motion(event, rect, self.inventory_canvas))
         # self.inventory_canvas.bind("<B1-Motion>", lambda event : self.drag_motion(event, rect))
 
 
@@ -145,8 +159,8 @@ class App:
 
     def title_section(self):
         self.logo_frame = tk.Frame(self.root, highlightbackground="blue", highlightthickness=2)
-        self.logo_frame.grid(row=0, column=0)
-        logo_canvas = tk.Canvas(self.logo_frame, width=100, height=100)
+        self.logo_frame.grid(row=0, column=0,columnspan=3)
+        logo_canvas = tk.Canvas(self.logo_frame, width=self.screen_width*0.9, height=100)
         logo_canvas.pack()
         logo_canvas.create_text(50, 50, text="GPLAN", font=helv15)
 
