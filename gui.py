@@ -54,11 +54,12 @@ class GameData:
     def __init__(self) -> None:
         self.adjacency_graph = [(1,2), (2,3), (3,1)]
         self.rfp = None
-
-
+        self.grid_row_size = 5
+        self.grid_col_size = 4
 
 class App:
     def __init__(self) -> None:
+        self.gameData()
         self.initialise_root()
         self.title_section()
         self.connectivity_graph_section()
@@ -66,8 +67,11 @@ class App:
         self.inventory_section()
         self.buttons_section()
 
+    def gameData(self):
+        self.game_data = GameData()
+
     def connectivity_graph_section(self):
-        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.connectivity_graph_frame.grid(row=1, column=0)
 
         title = tk.Canvas(self.connectivity_graph_frame, width=self.screen_width/4, height=self.screen_height/2)
@@ -76,32 +80,57 @@ class App:
 
     def user_grid_section(self):
         
-        self.user_grid_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.user_grid_frame = tk.Frame(self.root, width=self.screen_width*0.7, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.user_grid_frame.grid(row=1, column=1)
-        self.user_grid_canvas = tk.Canvas(self.user_grid_frame, width=self.screen_width/3, height=self.screen_height/2)
-        self.user_grid_canvas.grid()
-        self.user_grid_canvas.create_text(50, 50, text="User Grid")
+        
+        self.create_bg_grid(self.game_data.grid_row_size, self.game_data.grid_col_size, self.user_grid_frame)
+
+        # title = tk.Label(self.user_grid_frame, text="asdf")
+        # title.place(x = 100 , y = 99)
+        # self.user_grid_canvas = tk.Canvas(self.user_grid_frame, width=self.screen_width/3, height=self.screen_height/2)
+        # self.user_grid_canvas.grid()
+        # self.user_grid_canvas.create_text(50, 50, text="User Grid")
+
+    def create_bg_grid(self, row, col, frame):
+        
+        for r in range(row):
+            for c in range(col):
+                title = tk.Frame(self.user_grid_frame, highlightbackground="light grey", highlightthickness=1, width=50, height=50)
+                title.place(x = 100 + c*50 , y = 100 + 50*r)
+        pass
 
     def drag_start(self, event, label):
         label.startX = event.x
         label.startY = event.y
 
     def drag_motion(self, event, label):
-        x = label.winfo_x() - label.startX + event.x
-        y = label.winfo_y() - label.startY + event.y
-        label.place(x = min(max(x,self.user_grid_frame.winfo_x()), self.user_grid_frame.winfo_x() + self.user_grid_frame.winfo_width()), y = min(max(self.user_grid_frame.winfo_y(),y), self.user_grid_frame.winfo_y() + self.user_grid_frame.winfo_height()))
+        x = min(max(label.winfo_x() - label.startX + event.x, self.user_grid_frame.winfo_x()), self.user_grid_frame.winfo_x() + self.user_grid_frame.winfo_width() - label.winfo_width())
+        y = min(max(label.winfo_y() - label.startY + event.y, self.user_grid_frame.winfo_y()), self.user_grid_frame.winfo_y() + self.user_grid_frame.winfo_height() - label.winfo_height())
+
+        print(x)
+        print(y)
+        user_grid_frame_x = self.user_grid_frame.winfo_x()
+        user_grid_frame_y = self.user_grid_frame.winfo_y()
+
+        if(x > user_grid_frame_x + 100 and x < user_grid_frame_x + 100 + 50 * (self.game_data.grid_col_size)
+           and y > user_grid_frame_y + 100 and y < user_grid_frame_y + 100 + 50 * (self.game_data.grid_row_size)):
+            x = ((x - 100 - user_grid_frame_x) // 50) * 50 + 100 + user_grid_frame_x
+            y = ((y - 100 - user_grid_frame_y) // 50) * 50 + 100 + user_grid_frame_y
+
+        label.place(x = x, y = y)
 
     def inventory_section(self):
-        self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
-        self.inventory_frame.grid(row=1, column=2)
-        self.inventory_canvas = tk.Canvas(self.inventory_frame, width=self.screen_width/3, height=self.screen_height/2)
-        self.inventory_canvas.grid()
-        self.inventory_canvas.create_text(50, 50, text="Boxes")
+        pass
+        # self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        # self.inventory_frame.grid(row=1, column=2)
+        # self.inventory_canvas = tk.Canvas(self.inventory_frame, width=self.screen_width/3, height=self.screen_height/2)
+        # self.inventory_canvas.grid()
+        # self.inventory_canvas.create_text(50, 50, text="Boxes")
 
         self.boxes = {}
         # rect = self.inventory_frame(50, 110,300,280, fill= "light blue")
-        label = tk.Label(self.root, bg="red", width=10, height=5)
-        label.place(x= 100, y = 100)
+        label = tk.Frame(self.root, bg="red", width=100, height=100)
+        label.place(x= 900, y = 200)
         label.bind("<Button-1>", lambda event : self.drag_start(event, label))
         label.bind("<B1-Motion>", lambda event : self.drag_motion(event, label))
         # self.boxes[rect] = {}
@@ -152,8 +181,8 @@ class App:
 
     def title_section(self):
         self.logo_frame = tk.Frame(self.root, highlightbackground="blue", highlightthickness=2)
-        self.logo_frame.grid(row=0, column=0)
-        logo_canvas = tk.Canvas(self.logo_frame, width=100, height=100)
+        self.logo_frame.grid(row=0, column=0,columnspan=3)
+        logo_canvas = tk.Canvas(self.logo_frame, width=self.screen_width*0.9, height=100)
         logo_canvas.pack()
         logo_canvas.create_text(50, 50, text="GPLAN", font=helv15)
 
