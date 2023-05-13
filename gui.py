@@ -1,5 +1,11 @@
 import tkinter as tk
-
+import networkx as nx
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 helv15 = ("Helvetica", 15, "bold")
 helv8 = ("Helvetica", 8, "bold")
@@ -8,7 +14,7 @@ colors = [
     "#40E0D0",  # turqouise
     "#FF7F50",  # coral
     "#FF69B4",  # hot pink
-    "#E6E6FA",  # lavender
+    "#e3099e",  # lavender
     "#FA8072",  # salmon
     "#98FB98",  # pale green
     "#BA55D3",  # medium orchid
@@ -39,7 +45,7 @@ hex_colors = [
     "#40E0D0",  # turqouise
     "#FF7F50",  # coral
     "#FF69B4",  # hot pink
-    "#E6E6FA",  # lavender
+    "#e3099e",  # lavender
     "#FA8072",  # salmon
     "#98FB98",  # pale green
     "#BA55D3",  # medium orchid
@@ -52,13 +58,21 @@ hex_colors = [
 
 class GameData:
     def __init__(self) -> None:
-        self.adjacency_graph = [(1,2), (2,3), (3,1)]
+        self.adjacency_graph = [[0,1], [1,2], [2,0]]
+        self.box_sizes = [[1,1], [1,1], [2,1], [1,1], [1,1], [2,1]]
+
         self.rfp = None
+        self.grid_row_size = 2
+        self.grid_col_size = 2
+
+
 
 
 
 class App:
     def __init__(self) -> None:
+
+        self.game_data = GameData()
         self.initialise_root()
         self.title_section()
         self.connectivity_graph_section()
@@ -73,12 +87,25 @@ class App:
         title = tk.Canvas(self.connectivity_graph_frame, width=self.screen_width/4, height=self.screen_height/2)
         title.grid()
         title.create_text(50, 50, text="Connectivity")
+        f = plt.Figure(figsize=(3, 3), dpi=100)
+        ax = f.add_subplot(111)
+        g = nx.Graph()
+        g.add_edges_from(self.game_data.adjacency_graph)
+        nx.draw(g, ax=ax, with_labels=True, node_color="#ADD8E6")
+        canvas = FigureCanvasTkAgg(f, self.connectivity_graph_frame)
+
+        self.connectivity_graph_canvas = canvas.get_tk_widget()
+        self.connectivity_graph_canvas.grid(row=0,column=0)
+        print(self.connectivity_graph_canvas, "canv")
+
+
 
     def user_grid_section(self):
         
         self.user_grid_frame = tk.Frame(self.root, width=self.screen_width*0.7, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.user_grid_frame.grid(row=1, column=1)
-        
+        title = tk.Label(self.user_grid_frame, text="User Grid")
+        title.place(x = 100, y = 50)
         self.create_bg_grid(5, 4, self.user_grid_frame)
 
         # title = tk.Label(self.user_grid_frame, text="asdf")
@@ -96,6 +123,21 @@ class App:
         pass
 
     def inventory_section(self):
+        title = tk.Label(self.user_grid_frame, text="Boxes")
+        title.place(x = 500, y = 50)
+
+        cur_x = 500
+        cur_y = 100
+
+        for i in range(len(self.game_data.box_sizes)):
+            title = tk.Frame(self.user_grid_frame, highlightthickness=2, width=50*self.game_data.box_sizes[i][0], height=50*self.game_data.box_sizes[i][1], bg=hex_colors[i])
+            title.place(x = cur_x, y = cur_y)
+            # label = tk.Label(title, text=i)
+            # label.grid()
+            cur_x += 150
+            if(cur_x > 1000):
+                cur_x = 500
+                cur_y += 150
         pass
         # self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
         # self.inventory_frame.grid(row=1, column=2)
