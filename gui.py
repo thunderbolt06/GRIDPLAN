@@ -62,23 +62,21 @@ class GameData:
         self.box_sizes = [[1,1], [1,1], [2,1], [1,1], [1,1], [2,1]]
 
         self.rfp = None
-        self.grid_row_size = 2
-        self.grid_col_size = 2
-
-
-
-
+        self.grid_row_size = 5
+        self.grid_col_size = 4
 
 class App:
     def __init__(self) -> None:
-
-        self.game_data = GameData()
+        self.gameData()
         self.initialise_root()
         self.title_section()
         self.connectivity_graph_section()
         self.user_grid_section()
         self.inventory_section()
         self.buttons_section()
+
+    def gameData(self):
+        self.game_data = GameData()
 
     def connectivity_graph_section(self):
         self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
@@ -106,7 +104,7 @@ class App:
         self.user_grid_frame.grid(row=1, column=1)
         title = tk.Label(self.user_grid_frame, text="User Grid")
         title.place(x = 100, y = 50)
-        self.create_bg_grid(5, 4, self.user_grid_frame)
+        self.create_bg_grid(self.game_data.grid_row_size, self.game_data.grid_col_size, self.user_grid_frame)
 
         # title = tk.Label(self.user_grid_frame, text="asdf")
         # title.place(x = 100 , y = 99)
@@ -118,9 +116,29 @@ class App:
         
         for r in range(row):
             for c in range(col):
-                title = tk.Frame(self.user_grid_frame, highlightbackground="light grey", highlightthickness=2, width=50, height=50)
+                title = tk.Frame(self.user_grid_frame, highlightbackground="light grey", highlightthickness=1, width=50, height=50)
                 title.place(x = 100 + c*50 , y = 100 + 50*r)
         pass
+
+    def drag_start(self, event, label):
+        label.startX = event.x
+        label.startY = event.y
+
+    def drag_motion(self, event, label):
+        x = min(max(label.winfo_x() - label.startX + event.x, self.user_grid_frame.winfo_x()), self.user_grid_frame.winfo_x() + self.user_grid_frame.winfo_width() - label.winfo_width())
+        y = min(max(label.winfo_y() - label.startY + event.y, self.user_grid_frame.winfo_y()), self.user_grid_frame.winfo_y() + self.user_grid_frame.winfo_height() - label.winfo_height())
+
+        print(x)
+        print(y)
+        user_grid_frame_x = self.user_grid_frame.winfo_x()
+        user_grid_frame_y = self.user_grid_frame.winfo_y()
+
+        if(x > user_grid_frame_x + 100 and x < user_grid_frame_x + 100 + 50 * (self.game_data.grid_col_size)
+           and y > user_grid_frame_y + 100 and y < user_grid_frame_y + 100 + 50 * (self.game_data.grid_row_size)):
+            x = ((x - 100 - user_grid_frame_x) // 50) * 50 + 100 + user_grid_frame_x
+            y = ((y - 100 - user_grid_frame_y) // 50) * 50 + 100 + user_grid_frame_y
+
+        label.place(x = x, y = y)
 
     def inventory_section(self):
         title = tk.Label(self.user_grid_frame, text="Boxes")
@@ -145,33 +163,31 @@ class App:
         # self.inventory_canvas.grid()
         # self.inventory_canvas.create_text(50, 50, text="Boxes")
 
-        # self.boxes = {}
+        self.boxes = {}
         # rect = self.inventory_frame(50, 110,300,280, fill= "light blue")
-        # label = tk.Label(self.root, bg="red", width=10, height=5)
-        # label.place(x=0, y=0)
+        label = tk.Frame(self.root, bg="red", width=100, height=100)
+        label.place(x= 900, y = 200)
+        label.bind("<Button-1>", lambda event : self.drag_start(event, label))
+        label.bind("<B1-Motion>", lambda event : self.drag_motion(event, label))
         # self.boxes[rect] = {}
         # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda event : self.drag_start(event, rect, self.inventory_canvas))
-        # # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda x: print("hello"))
+        # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda x: print("hello"))
         # self.inventory_canvas.tag_bind(rect, "<B1-Motion>", lambda event : self.drag_motion(event, rect, self.inventory_canvas))
         # self.inventory_canvas.bind("<B1-Motion>", lambda event : self.drag_motion(event, rect))
 
+    # def drag_start(self, event, rect, canvas):
+    #     print(rect)
+    #     print(canvas.coords(rect))
+    #     self.boxes[rect]["startX"] = event.x
+    #     self.boxes[rect]["startY"] = event.y
+    #     # rect.startX = event.x
+    #     # rect.startY = event.y
 
-
-
-
-    def drag_start(self, event, rect, canvas):
-        print(rect)
-        print(canvas.coords(rect))
-        self.boxes[rect]["startX"] = event.x
-        self.boxes[rect]["startY"] = event.y
-        # rect.startX = event.x
-        # rect.startY = event.y
-
-    def drag_motion(self, event, rect, canvas):
-        # x = rect.winfo_x() - rect.startX + event.X
-        # y = rect.winfo_Y() - rect.startY + event.y
-        # rect.place(x=x, y=y)
-        pass
+    # def drag_motion(self, event, rect, canvas):
+    #     # x = rect.winfo_x() - rect.startX + event.X
+    #     # y = rect.winfo_Y() - rect.startY + event.y
+    #     # rect.place(x=x, y=y)
+    #     pass
 
         
     def buttons_section(self):
