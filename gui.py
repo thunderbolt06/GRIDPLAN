@@ -64,24 +64,73 @@ class App:
         self.connectivity_graph_section()
         self.user_grid_section()
         self.inventory_section()
+        self.buttons_section()
 
     def connectivity_graph_section(self):
-        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height)
+        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
         self.connectivity_graph_frame.grid(row=1, column=0)
 
-        title = tk.Canvas(self.connectivity_graph_frame)
+        title = tk.Canvas(self.connectivity_graph_frame, width=self.screen_width/4, height=self.screen_height/2)
         title.grid()
-        title.create_text(50, 50, text="Connectivity", font=helv15)
-
-
-
+        title.create_text(50, 50, text="Connectivity")
 
     def user_grid_section(self):
-        pass
+        
+        self.user_grid_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.user_grid_frame.grid(row=1, column=1)
+        self.user_grid_canvas = tk.Canvas(self.user_grid_frame, width=self.screen_width/3, height=self.screen_height/2)
+        self.user_grid_canvas.grid()
+        self.user_grid_canvas.create_text(50, 50, text="User Grid")
 
     def inventory_section(self):
+        self.inventory_frame = tk.Frame(self.root, width=self.screen_width/3, height=self.screen_height, highlightbackground="blue", highlightthickness=2)
+        self.inventory_frame.grid(row=1, column=2)
+        self.inventory_canvas = tk.Canvas(self.inventory_frame, width=self.screen_width/3, height=self.screen_height/2)
+        self.inventory_canvas.grid()
+        self.inventory_canvas.create_text(50, 50, text="Boxes")
+
+        self.boxes = {}
+        rect = self.inventory_frame(50, 110,300,280, fill= "light blue")
+        label = tk.Label(self.root, bg="red", width=10, height=5)
+        label.place(x=0, y=0)
+        self.boxes[rect] = {}
+        self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda event : self.drag_start(event, rect, self.inventory_canvas))
+        # self.inventory_canvas.tag_bind(rect, "<Button-1>", lambda x: print("hello"))
+        self.inventory_canvas.tag_bind(rect, "<B1-Motion>", lambda event : self.drag_motion(event, rect, self.inventory_canvas))
+        # self.inventory_canvas.bind("<B1-Motion>", lambda event : self.drag_motion(event, rect))
+
+
+
+
+
+    def drag_start(self, event, rect, canvas):
+        print(rect)
+        print(canvas.coords(rect))
+        self.boxes[rect]["startX"] = event.x
+        self.boxes[rect]["startY"] = event.y
+        # rect.startX = event.x
+        # rect.startY = event.y
+
+    def drag_motion(self, event, rect, canvas):
+        # x = rect.winfo_x() - rect.startX + event.X
+        # y = rect.winfo_Y() - rect.startY + event.y
+        # rect.place(x=x, y=y)
         pass
 
+        
+    def buttons_section(self):
+        
+        self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/2, height=self.screen_height/10, highlightbackground="blue", highlightthickness=2)
+        self.connectivity_graph_frame.grid(row=2, column=0, columnspan=3)
+
+        self.create_btn = tk.Button(self.connectivity_graph_frame, text="Create new")
+        self.create_btn.grid()
+
+        self.submit_btn = tk.Button(self.connectivity_graph_frame, text="Submit")
+        self.submit_btn.grid()
+
+        self.clear_btn = tk.Button(self.connectivity_graph_frame, text="Clear")
+        self.clear_btn.grid()
 
     def run(self):
         self.root.mainloop()
@@ -95,11 +144,21 @@ class App:
                            'x' + str(self.screen_height)))
 
     def title_section(self):
-        self.logo_frame = tk.Frame(self.root)
+        self.logo_frame = tk.Frame(self.root, highlightbackground="blue", highlightthickness=2)
         self.logo_frame.grid(row=0, column=0)
         logo_canvas = tk.Canvas(self.logo_frame, width=100, height=100)
         logo_canvas.pack()
         logo_canvas.create_text(50, 50, text="GPLAN", font=helv15)
+
+
+    def checkered(canvas, line_distance):
+        # vertical lines at an interval of "line_distance" pixel
+        for x in range(line_distance,canvas_width,line_distance):
+            canvas.create_line(x, 0, x, canvas_height, fill="#476042")
+        # horizontal lines at an interval of "line_distance" pixel
+        for y in range(line_distance,canvas_height,line_distance):
+            canvas.create_line(0, y, canvas_width, y, fill="#476042")
+
 
 
 def run():
