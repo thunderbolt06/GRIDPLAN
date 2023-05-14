@@ -17,8 +17,6 @@ class GameData:
         json_data = json.load(file, object_hook = customDecoder)
         self.adjacency_list= json_data.adjacency_list
         self.box_sizes= json_data.box_sizes
-        
-        
         self.grid_row_size = json_data.grid_row_size
         self.grid_col_size = json_data.grid_col_size
         # self.adjacency_list = [[0,1], [1,2], [2,0]]
@@ -26,6 +24,7 @@ class GameData:
         self.num_boxes = len(self.box_sizes)
         self.init_graph = nx.Graph()
         self.init_graph.add_edges_from(self.adjacency_list)
+        # print(weights)
         self.width_quanta = 50
         self.height_quanta = 50
         self.rfp = None
@@ -36,8 +35,6 @@ class GameData:
         self.boxes_cur_y = [0] * 10
         self.current_box_graph = nx.Graph()
         self.grid_coords = [100, 100, self.grid_col_size*50, self.grid_row_size*50]
-        
-
         self.current_box_adjacency = []
         self.current_box_graph.add_edges_from(self.current_box_adjacency)
 
@@ -60,6 +57,7 @@ class GameData:
             return True
         else:
             return False
+        
     def get_current_box_adjacency(self):
         self.current_box_adjacency = []
         for i in range(self.num_boxes):
@@ -69,10 +67,9 @@ class GameData:
                     if( self.check_two_boxes_adjacent(self.boxes_cur_x[i], self.boxes_cur_y[i], self.width_quanta*self.box_sizes[i][0],self.height_quanta*self.box_sizes[i][1]
                                                       , self.boxes_cur_x[j], self.boxes_cur_y[j], self.width_quanta*self.box_sizes[j][0],self.height_quanta*self.box_sizes[j][1] )):
                         self.current_box_adjacency.append([i,j])
-                        print(i,j, "are adjacent")      
-                    print(self.boxes_cur_x[i], self.boxes_cur_y[i])
-                    print(self.boxes_cur_x[j], self.boxes_cur_y[j])
                     pass
+        
+
         self.current_box_graph.clear()
         self.current_box_graph.add_edges_from(self.current_box_adjacency)
     

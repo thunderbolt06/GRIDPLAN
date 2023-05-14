@@ -1,6 +1,7 @@
 import matplotlib
 matplotlib.use("TkAgg")
 from constants import *
+from connectivityGraph import ConnectivityGraph
 
 class Box:
     def drag_start(app, event, i):
@@ -24,9 +25,14 @@ class Box:
             x = ((x - 100) // app.game_data.width_quanta) * app.game_data.width_quanta + 100
             y = ((y - 100) // app.game_data.height_quanta) * app.game_data.height_quanta + 100 
 
+            app.game_data.get_current_box_adjacency()
+            ConnectivityGraph.refresh_connectivity_graph(app)
+
         box.place(x = x, y = y)
         app.game_data.boxes_cur_x[i]=x
         app.game_data.boxes_cur_y[i]=y
+
+        
 
     def rotate_box(app, i):
         print("rotating")
