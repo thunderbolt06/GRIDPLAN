@@ -159,8 +159,10 @@ class GameData:
     def check_if_box_satisfy_adj(self):
         self.get_current_box_adjacency()
         print(self.current_box_graph.edges())
+        # e1 = sorted(self.current_box_graph.edges())
         print(self.init_graph.edges())
-        if (self.current_box_graph.edges() == self.init_graph.edges()):
+        if(nx.is_isomorphic(self.current_box_graph, self.init_graph)):
+        # if (sorted(self.current_box_graph.edges()) == sorted(self.init_graph.edges())):
             print("adj satisfied")
             return True
         else:
