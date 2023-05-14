@@ -14,7 +14,7 @@ class App:
         @rahil.jain
         13/5/23
         """
-        self.level = 8
+        self.level = 1
         self.gameData()
         self.initialise_root()
         self.title_section()

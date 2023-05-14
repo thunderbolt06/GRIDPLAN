@@ -24,3 +24,11 @@ py main.py
 ```bash
 python3 main.py
 ```
+
+## Levels Description
+
+1. K2, 2 nodes, 2 CIPS
+2. 4 nodes, 2 CIPS
+3. 8 nodes, 2 CIPS
+4. one connected, 2 CIPS
+5. one connected, 0 CIPS
