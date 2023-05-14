@@ -2,6 +2,7 @@ import tkinter as tk
 import networkx as nx
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -81,7 +82,7 @@ class GameData:
         self.width_quanta = 50
         self.height_quanta = 50
         self.rfp = None
-        self.box_frames = [None] * 10
+        self.box_frames = [tk.Frame] * 10
         self.boxes_init_x = [0] * 10
         self.boxes_init_y = [0] * 10
         self.boxes_cur_x = [0] * 10
@@ -159,10 +160,8 @@ class GameData:
     def check_if_box_satisfy_adj(self):
         self.get_current_box_adjacency()
         print(self.current_box_graph.edges())
-        # e1 = sorted(self.current_box_graph.edges())
         print(self.init_graph.edges())
-        if(nx.is_isomorphic(self.current_box_graph, self.init_graph)):
-        # if (sorted(self.current_box_graph.edges()) == sorted(self.init_graph.edges())):
+        if (self.current_box_graph.edges() == self.init_graph.edges()):
             print("adj satisfied")
             return True
         else:
@@ -250,28 +249,26 @@ class App:
         box = self.game_data.box_frames[i]
 
         # finding the new location of the box
-        # x = min(max(box.winfo_x() - box.startX + event.x, self.user_grid_frame.winfo_x()), self.user_grid_frame.winfo_x() + self.user_grid_frame.winfo_width() - box.winfo_width())
-        # y = min(max(box.winfo_y() - box.startY + event.y, self.user_grid_frame.winfo_y()), self.user_grid_frame.winfo_y() + self.user_grid_frame.winfo_height() - box.winfo_height())
-
-        x = box.winfo_x() - box.startX + event.x
-        y = box.winfo_y() - box.startY + event.y
-        print("start")
+        ogX = box.winfo_x() - box.startX + event.x
+        ogY = box.winfo_y() - box.startY + event.y
+        x = min(max(ogX, 0), self.user_grid_frame.winfo_width() - box.winfo_width())
+        y = min(max(ogY, 0), self.user_grid_frame.winfo_height() - box.winfo_height())
         print(x, y)
+        print("start")
+        # print(x, y)
         user_grid_frame_x = self.user_grid_frame.winfo_x()
         user_grid_frame_y = self.user_grid_frame.winfo_y()
 
 
         # Snapping Functionality
-        # if(x > user_grid_frame_x + 100 and x < user_grid_frame_x + 100 + 50 * (self.game_data.grid_col_size)
-        #    and y > user_grid_frame_y + 100 and y < user_grid_frame_y + 100 + 50 * (self.game_data.grid_row_size)):
-        #     x = ((x - 100 - user_grid_frame_x) // self.game_data.width_quanta) * self.game_data.width_quanta + 100 + user_grid_frame_x
-        #     y = ((y - 100 - user_grid_frame_y) // self.game_data.height_quanta) * self.game_data.height_quanta + 100 + user_grid_frame_y
+        if(x >= 100 and x <= 100 + 50 * (self.game_data.grid_col_size)
+           and y >= 100 and y <= 100 + 50 * (self.game_data.grid_row_size)):
+            x = ((x - 100) // self.game_data.width_quanta) * self.game_data.width_quanta + 100
+            y = ((y - 100) // self.game_data.height_quanta) * self.game_data.height_quanta + 100 
 
-        x = ((x - 122 - user_grid_frame_x) // self.game_data.width_quanta) * self.game_data.width_quanta + 122 + user_grid_frame_x
-        y = ((y - 135 - user_grid_frame_y) // self.game_data.height_quanta) * self.game_data.height_quanta + 135 + user_grid_frame_y
+        # x = ((x - 122 - user_grid_frame_x) // self.game_data.width_quanta) * self.game_data.width_quanta + 122 + user_grid_frame_x
+        # y = ((y - 135 - user_grid_frame_y) // self.game_data.height_quanta) * self.game_data.height_quanta + 135 + user_grid_frame_y
         print(x, y)
-
-        print("start")
 
         box.place(x = x, y = y)
 
@@ -320,9 +317,6 @@ class App:
             if(cur_x > 800):
                 cur_x = 500
                 cur_y += 100
-
-        print(self.game_data.box_frames)
-
         
     def buttons_section(self):
         
@@ -330,7 +324,7 @@ class App:
         self.buttons_section_frame.grid(row=2, column=0, columnspan=3)
 
         self.create_btn = tk.Button(self.buttons_section_frame, text="Create new")
-        self.clear_btn = tk.Button(self.buttons_section_frame, text="Clear")
+        self.clear_btn = tk.Button(self.buttons_section_frame, text="Clear", command=lambda : self.reset())
         self.submit_btn = tk.Button(self.buttons_section_frame, text="Submit", command=lambda : self.game_data.check_game_success(self.output_text))
         self.next_level_btn = tk.Button(self.buttons_section_frame, text="Next Level", command=lambda : self.next_level(self.output_text))
         self.output_text = tk.Label(self.buttons_section_frame,text="Keep Going....")
@@ -345,17 +339,26 @@ class App:
         self.level += 1
         if(self.level == 10):
             self.level = 1
-        print("next level",self.level )
+        print("next level",self.level)
         self.game_data = GameData(self.level)
         self.refresh_ui()
 
     def refresh_ui(self):
         self.clear_frame(self.user_grid_frame)
         self.clear_frame(self.connectivity_graph_frame)
+        app.run()
+        self.inventory_section()
         self.create_connectivity_graph()
         self.create_user_grid()
         self.inventory_section()
         pass
+
+    def reset(self):
+        for i in range(0, len(self.game_data.box_frames)):
+            print(i)
+            box_frame = self.game_data.box_frames[i]
+            box_frame.place(x = self.game_data.boxes_init_x[i], 
+                            y = self.game_data.boxes_init_y[i])
 
     def run(self):
         self.root.mainloop()
@@ -374,8 +377,6 @@ class App:
         logo_canvas = tk.Canvas(self.logo_frame, width=self.screen_width*0.9, height=100)
         logo_canvas.pack()
         logo_canvas.create_text(200, 50, text="The Grid Game", font=helv15)
-
-
 
 
 def run():
