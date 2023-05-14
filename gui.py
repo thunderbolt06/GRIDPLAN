@@ -190,7 +190,13 @@ class App:
     def connectivity_graph_section(self):
         self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.connectivity_graph_frame.grid(row=1, column=0)
+        self.create_connectivity_graph()
 
+    def clear_frame(self, frame):
+        for widgets in frame.winfo_children():
+            widgets.destroy()
+
+    def create_connectivity_graph(self):
         title = tk.Canvas(self.connectivity_graph_frame, width=self.screen_width/4, height=self.screen_height/2)
         title.grid()
         title.create_text(100, 50, text="Connectivity", font=helv8)
@@ -198,7 +204,9 @@ class App:
         ax = f.add_subplot(111)
         g = nx.Graph()
         g.add_edges_from(self.game_data.adjacency_list)
-        nx.draw_planar(g, ax=ax, with_labels=True, node_color="#ADD8E6")
+        # nx.draw(g, pos=nx.spectral_layout(g), ax=ax, with_labels=True, node_color="#ADD8E6")
+        nx.draw(g, pos=nx.spring_layout(g), ax=ax, with_labels=True, node_color="#ADD8E6")
+        # nx.draw_planar(g, ax=ax, with_labels=True, node_color="#ADD8E6")
         canvas = FigureCanvasTkAgg(f, self.connectivity_graph_frame)
 
         self.connectivity_graph_canvas = canvas.get_tk_widget()
@@ -211,6 +219,9 @@ class App:
         
         self.user_grid_frame = tk.Frame(self.root, width=self.screen_width*0.7, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
         self.user_grid_frame.grid(row=1, column=1)
+        self.create_user_grid()
+
+    def create_user_grid(self):
         title = tk.Label(self.user_grid_frame, text="User Grid", font=helv8)
         title.place(x = 100, y = 50)
         self.create_bg_grid(self.game_data.grid_row_size, self.game_data.grid_col_size, self.user_grid_frame)
@@ -336,10 +347,15 @@ class App:
             self.level = 1
         print("next level",self.level )
         self.game_data = GameData(self.level)
-        self.root.destroy()
-        self.root.__init__()
-        print(self.game_data.adjacency_list)
-        self.root.update_idletasks()
+        self.refresh_ui()
+
+    def refresh_ui(self):
+        self.clear_frame(self.user_grid_frame)
+        self.clear_frame(self.connectivity_graph_frame)
+        self.create_connectivity_graph()
+        self.create_user_grid()
+        self.inventory_section()
+        pass
 
     def run(self):
         self.root.mainloop()
