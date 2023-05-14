@@ -13,6 +13,7 @@ class ConnectivityGraph:
         title.create_text(100, 50, text="Connectivity", font=helv8)
         app.f = plt.Figure(figsize=(3, 3), dpi=100)
         app.ax = app.f.add_subplot(111)
+        app.graph.clear()
         app.graph.add_edges_from(app.game_data.adjacency_list, color='grey')
         print(app.game_data.current_box_adjacency)
         attrs = {(i, j): {"color": 'green'} for i,j in app.game_data.current_box_adjacency}
