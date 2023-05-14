@@ -32,3 +32,7 @@ python3 main.py
 3. 8 nodes, 2 CIPS
 4. one connected, 2 CIPS
 5. one connected, 0 CIPS
+
+
+
+https://github.com/thunderbolt06/GRIDPLAN/assets/46898933/55760159-57ee-4f3a-9c12-54dff840d410
