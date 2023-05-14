@@ -5,8 +5,10 @@ from gameData import GameData
 from connectivityGraph import ConnectivityGraph
 from userGridSection import UserGridSection
 from buttons import Button
+import networkx as nx
 from boxes import Box
 from constants import *
+
 
 class App:
     def __init__(self) -> None:
@@ -16,12 +18,17 @@ class App:
         """
         self.level = 1
         self.gameData()
+        self.create_graph()
         self.initialise_root()
         self.title_section()
         self.connectivity_graph_section()
         self.user_grid_section()
         self.inventory_section()
         self.buttons_section()
+        
+
+    def create_graph(self):
+        self.graph = nx.Graph()
 
     def buttons_section(self):
         Button.create_buttons(self)
