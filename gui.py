@@ -6,6 +6,8 @@ import numpy as np
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import json
+from collections import namedtuple
 
 helv15 = ("Helvetica", 30, "bold")
 helv8 = ("Helvetica", 20, "bold")
@@ -24,6 +26,7 @@ colors = [
     "#6495ED",  # corn flower blue
 ] * 10
 INPUTGRAPH_JSON_PATH = ("./FastPLAN/inputgraph.json")
+
 
 rgb_colors = [
     (123, 104, 238),  # medium slate blue
@@ -55,26 +58,37 @@ hex_colors = [
     "#6495ED",  # corn flower blue
 ]*10
 
+ 
+# customDecoder function
+def customDecoder(obj):
+    return namedtuple('X', obj.keys())(*obj.values())
 
 class GameData:
-    def __init__(self) -> None:
-        self.adjacency_list = [[0,1], [1,2], [2,0]]
-        self.box_sizes = [[1,1], [1,1], [2,1]]
-        self.num_boxes = 3
+    def __init__(self, level) -> None:
+        file_name = f"./level{level}.json"
+        file = open(file_name)
+        json_data = json.load(file, object_hook = customDecoder)
+        self.adjacency_list= json_data.adjacency_list
+        self.box_sizes= json_data.box_sizes
+        
+        
+        self.grid_row_size = json_data.grid_row_size
+        self.grid_col_size = json_data.grid_col_size
+        # self.adjacency_list = [[0,1], [1,2], [2,0]]
+        # self.box_sizes = [[1,1], [1,1], [2,1]]
+        self.num_boxes = len(self.box_sizes)
         self.init_graph = nx.Graph()
         self.init_graph.add_edges_from(self.adjacency_list)
         self.width_quanta = 50
         self.height_quanta = 50
         self.rfp = None
-        self.grid_row_size = 2
-        self.grid_col_size = 2
-        self.box_frames = [None] * 6
-        self.boxes_init_x = [0] * 6
-        self.boxes_init_y = [0] * 6
-        self.boxes_cur_x = [0] * 6
-        self.boxes_cur_y = [0] * 6
+        self.box_frames = [None] * 10
+        self.boxes_init_x = [0] * 10
+        self.boxes_init_y = [0] * 10
+        self.boxes_cur_x = [0] * 10
+        self.boxes_cur_y = [0] * 10
         self.current_box_graph = nx.Graph()
-        self.grid_coords = [100, 100, self.grid_row_size*50, self.grid_col_size*50]
+        self.grid_coords = [100, 100, self.grid_col_size*50, self.grid_row_size*50]
         
 
         self.current_box_adjacency = []
@@ -117,23 +131,30 @@ class GameData:
     
     def check_game_success(self, label):
         if(self.check_if_box_satisfy_adj() and self.check_if_all_boxes_are_inside_grid()):
-
+            
             label.config(text="Congratulations!!! You have completed the level")
         else :
             label.config(text="Incorrect!! please try again")
 
     def check_one_box_is_inside_grid(self,x, y, w, h):
+
         if(x >= self.grid_coords[0] and 
            y >= self.grid_coords[1] and 
            x + w <= self.grid_coords[0] + self.grid_coords[2] and 
            y + h <= self.grid_coords[1] + self.grid_coords[3]):
             return True
+        print("this box is out of grid")
+        print(x, y , w , h)
+        print(self.grid_coords)
         return False
 
     def check_if_all_boxes_are_inside_grid(self):
+        print("checking if boxes are inside grid")
         for i in range(self.num_boxes):
             if(self.check_one_box_is_inside_grid(self.boxes_cur_x[i], self.boxes_cur_y[i], self.width_quanta*self.box_sizes[i][0],self.height_quanta*self.box_sizes[i][1] ) == False):
+                print(i, "is not inside the grid")
                 return False
+        print("all boxes are inside the grid")
         return True
 
     def check_if_box_satisfy_adj(self):
@@ -141,18 +162,20 @@ class GameData:
         print(self.current_box_graph.edges())
         print(self.init_graph.edges())
         if (self.current_box_graph.edges() == self.init_graph.edges()):
+            print("adj satisfied")
             return True
         else:
+            print("adj not satisfied")
             return False
-
 
 class App:
     def __init__(self) -> None:
-        self.gameData()
         """
         @rahil.jain
         13/5/23
         """
+        self.level = 8
+        self.gameData()
         self.initialise_root()
         self.title_section()
         self.connectivity_graph_section()
@@ -161,7 +184,7 @@ class App:
         self.buttons_section()
 
     def gameData(self):
-        self.game_data = GameData()
+        self.game_data = GameData(self.level)
 
     def connectivity_graph_section(self):
         self.connectivity_graph_frame = tk.Frame(self.root, width=self.screen_width/4, height=self.screen_height/2, highlightbackground="blue", highlightthickness=2)
@@ -174,7 +197,7 @@ class App:
         ax = f.add_subplot(111)
         g = nx.Graph()
         g.add_edges_from(self.game_data.adjacency_list)
-        nx.draw(g, ax=ax, with_labels=True, node_color="#ADD8E6")
+        nx.draw_planar(g, ax=ax, with_labels=True, node_color="#ADD8E6")
         canvas = FigureCanvasTkAgg(f, self.connectivity_graph_frame)
 
         self.connectivity_graph_canvas = canvas.get_tk_widget()
@@ -260,7 +283,7 @@ class App:
         title = tk.Label(self.user_grid_frame, text="Boxes", font=helv8)
         title.place(x = 500, y = 50)
 
-        cur_x = 100
+        cur_x = 500
         cur_y = 100
 
         for i in range(len(self.game_data.box_sizes)):
@@ -282,9 +305,9 @@ class App:
             self.game_data.boxes_cur_y[i]=cur_y
 
             cur_x += 150
-            if(cur_x > 1500):
+            if(cur_x > 800):
                 cur_x = 500
-                cur_y += 150
+                cur_y += 100
 
         print(self.game_data.box_frames)
 
@@ -295,16 +318,27 @@ class App:
         self.buttons_section_frame.grid(row=2, column=0, columnspan=3)
 
         self.create_btn = tk.Button(self.buttons_section_frame, text="Create new")
-        self.output_text = tk.Label(self.buttons_section_frame,text="Keep Going....")
         self.clear_btn = tk.Button(self.buttons_section_frame, text="Clear")
-        self.create_btn.grid()
-
         self.submit_btn = tk.Button(self.buttons_section_frame, text="Submit", command=lambda : self.game_data.check_game_success(self.output_text))
+        self.next_level_btn = tk.Button(self.buttons_section_frame, text="Next Level", command=lambda : self.next_level(self.output_text))
+        self.output_text = tk.Label(self.buttons_section_frame,text="Keep Going....")
+        # self.create_btn.grid()
+
         self.submit_btn.grid()
-
         self.clear_btn.grid()
-
+        self.next_level_btn.grid()
         self.output_text.grid()
+
+    def next_level(self, label):
+        self.level += 1
+        if(self.level == 10):
+            self.level = 1
+        print("next level",self.level )
+        self.game_data = GameData(self.level)
+        self.root.destroy()
+        self.root.__init__()
+        print(self.game_data.adjacency_list)
+        self.root.update_idletasks()
 
     def run(self):
         self.root.mainloop()

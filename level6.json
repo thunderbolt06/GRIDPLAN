@@ -1,0 +1,6 @@
+{
+    "adjacency_list": [[0,1], [1,2], [2,0], [2,3], [3,0]],
+    "box_sizes": [[1,1], [1,1], [2,1], [2,1]],
+    "grid_row_size": 3,
+    "grid_col_size": 2
+}
