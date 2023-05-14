@@ -346,7 +346,6 @@ class App:
     def refresh_ui(self):
         self.clear_frame(self.user_grid_frame)
         self.clear_frame(self.connectivity_graph_frame)
-        app.run()
         self.inventory_section()
         self.create_connectivity_graph()
         self.create_user_grid()
