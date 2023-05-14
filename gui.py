@@ -9,7 +9,6 @@ import networkx as nx
 from boxes import Box
 from constants import *
 
-
 class App:
     def __init__(self) -> None:
         """
@@ -26,7 +25,6 @@ class App:
         self.inventory_section()
         self.buttons_section()
         
-
     def create_graph(self):
         self.graph = nx.Graph()
 
@@ -88,8 +86,6 @@ class App:
         self.refresh_ui()
         self.level_option = f"level {self.level}"
         self.logo_canvas.itemconfig(self.level_title, text=f"Level {self.level}")
-        # self.level_title.config
-        # self.level_dropdown.config()
 
     def refresh_ui(self):
         self.clear_frame(self.user_grid_frame)
@@ -99,7 +95,7 @@ class App:
         self.inventory_section()
 
     def reset(self):
-        for i in range(0, len(self.game_data.box_frames)):
+        for i in range(len(self.game_data.box_frames)):
             print(i)
             box_frame = self.game_data.box_frames[i]
             box_frame.place(x = self.game_data.boxes_init_x[i], 
@@ -121,15 +117,9 @@ class App:
         self.logo_frame.grid(row=0, column=0,columnspan=3)
         logo_canvas = tk.Canvas(self.logo_frame, width=self.screen_width*0.6, height=100)
         logo_canvas.grid(row=0, column=0)
-        # logo_canvas.place(x = 50, y = 50)
         logo_canvas.create_text(200, 50, text="The Grid Game", font=helv15)
         self.logo_canvas = logo_canvas
         self.level_title = logo_canvas.create_text(500, 50 , text=f"Level {self.level}", font=helv15)
-        # self.level_option = tk.StringVar()
-        # self.level_option.set("level 1")
-        # self.level_dropdown = tk.OptionMenu( self.logo_frame , self.level_option , *options, command=lambda level_option = self.level_option: self.choose_level(level_option))
-        # # self.level_dropdown.place(x = 700, y = 50)
-        # self.level_dropdown.grid(row=0, column=1, padx = 100)
 
 
     def choose_level(self, level_option):
